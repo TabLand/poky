@@ -1,0 +1,26 @@
+Upstream-Status: Pending
+
+From 905c767beba93e7a9a5964ed37150b968475e8ff Mon Sep 17 00:00:00 2001
+From: Ijtaba Hussain <ijtabahussain@live.com>
+Date: Thu, 1 Jun 2023 17:20:49 +0500
+Subject: [PATCH] Use new extended OpenSSL function returning time_t
+
+---
+ Modules/_ssl.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/Modules/_ssl.c b/Modules/_ssl.c
+index f1bb39f..c0d2e94 100644
+--- a/Modules/_ssl.c
++++ b/Modules/_ssl.c
+@@ -4993,7 +4993,9 @@ PySSLSession_clear(PySSLSession *self)
+ 
+ static PyObject *
+ PySSLSession_get_time(PySSLSession *self, void *closure) {
+-    return PyLong_FromLong(SSL_SESSION_get_time(self->session));
++    return PyLong_FromLongLong(
++               (long long) SSL_SESSION_get_time_ex(self->session)
++           );
+ }
+ 
+ PyDoc_STRVAR(PySSLSession_get_time_doc,

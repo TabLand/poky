@@ -1,0 +1,35 @@
+Upstream-Status: Pending [https://github.com/madler/zlib/issues/447]
+
+diff -Naur a/configure b/configure
+--- a/configure	2023-05-28 21:36:54.899869953 +0500
++++ b/configure	2023-05-28 21:46:11.767394063 +0500
+@@ -514,8 +514,16 @@
+ off64_t dummy = 0;
+ EOF
+ if try $CC -c $CFLAGS -D_LARGEFILE64_SOURCE=1 $test.c; then
+-  CFLAGS="${CFLAGS} -D_LARGEFILE64_SOURCE=1"
+-  SFLAGS="${SFLAGS} -D_LARGEFILE64_SOURCE=1"
++  case ${CFLAGS} in
++    *"_TIME_BITS="*|*"_FILE_OFFSET_BITS="*) 
++      echo "_TIME_BITS or _FILE_OFFSET_BITS defined, this is incompatible with"
++      echo "_LARGEFILE64_SOURCE - not setting the latter"
++      ;;
++    *) 
++      CFLAGS="${CFLAGS} -D_LARGEFILE64_SOURCE=1"
++      SFLAGS="${SFLAGS} -D_LARGEFILE64_SOURCE=1"
++      ;;
++  esac
+   ALL="${ALL} all64"
+   TEST="${TEST} test64"
+   echo "Checking for off64_t... Yes." | tee -a configure.log
+diff -Naur a/gzguts.h b/gzguts.h
+--- a/gzguts.h	2023-05-28 21:36:54.899869953 +0500
++++ b/gzguts.h	2023-05-28 18:02:34.802004929 +0500
+@@ -9,6 +9,7 @@
+ #  endif
+ #  ifdef _FILE_OFFSET_BITS
+ #    undef _FILE_OFFSET_BITS
++#    undef _TIME_BITS
+ #  endif
+ #endif
+ 

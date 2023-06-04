@@ -1,0 +1,54 @@
+From ebd263eabf8971c5251733aa2747843f38324938 Mon Sep 17 00:00:00 2001
+From: Ijtaba Hussain <ijtabahussain@live.com>
+Date: Thu, 1 Jun 2023 14:24:15 +0500
+Subject: [PATCH] More appropriate datatype in a new _ex function
+
+Upstream-Status: Pending
+
+New extended function used so as not to damage ABI for backward compatibility
+
+---
+ include/openssl/ssl.h.in | 1 +
+ ssl/ssl_sess.c           | 7 +++++++
+ util/libssl.num          | 1 +
+ 3 files changed, 9 insertions(+)
+
+diff --git a/include/openssl/ssl.h.in b/include/openssl/ssl.h.in
+index 105b4a4..06d3ed0 100644
+--- a/include/openssl/ssl.h.in
++++ b/include/openssl/ssl.h.in
+@@ -1654,6 +1654,7 @@ __owur const char *SSL_rstate_string(const SSL *s);
+ __owur const char *SSL_state_string_long(const SSL *s);
+ __owur const char *SSL_rstate_string_long(const SSL *s);
+ __owur long SSL_SESSION_get_time(const SSL_SESSION *s);
++__owur time_t SSL_SESSION_get_time_ex(const SSL_SESSION *s);
+ __owur long SSL_SESSION_set_time(SSL_SESSION *s, long t);
+ __owur long SSL_SESSION_get_timeout(const SSL_SESSION *s);
+ __owur long SSL_SESSION_set_timeout(SSL_SESSION *s, long t);
+diff --git a/ssl/ssl_sess.c b/ssl/ssl_sess.c
+index 68b57a5..c1640fc 100644
+--- a/ssl/ssl_sess.c
++++ b/ssl/ssl_sess.c
+@@ -926,6 +926,13 @@ long SSL_SESSION_get_time(const SSL_SESSION *s)
+     return (long)s->time;
+ }
+ 
++time_t SSL_SESSION_get_time_ex(const SSL_SESSION *s)
++{
++    if (s == NULL)
++        return 0;
++    return s->time;
++}
++
+ long SSL_SESSION_set_time(SSL_SESSION *s, long t)
+ {
+     time_t new_time = (time_t)t;
+diff --git a/util/libssl.num b/util/libssl.num
+index f055c96..6793c2d 100644
+--- a/util/libssl.num
++++ b/util/libssl.num
+@@ -520,3 +520,4 @@ SSL_load_client_CA_file_ex              520	3_0_0	EXIST::FUNCTION:
+ SSL_set0_tmp_dh_pkey                    521	3_0_0	EXIST::FUNCTION:
+ SSL_CTX_set0_tmp_dh_pkey                522	3_0_0	EXIST::FUNCTION:
+ SSL_group_to_name                       523	3_0_0	EXIST::FUNCTION:
++SSL_SESSION_get_time_ex                 ?	3_0_8	EXIST::FUNCTION:
